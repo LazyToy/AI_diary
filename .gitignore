@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+*.log
+app/data/diaries/*.json
+app/data/images/*
+!app/data/diaries/.gitkeep
+!app/data/images/.gitkeep
+.idea/
+.vscode/
+*.egg-info/
+dist/
+build/
+
+# API 키가 포함된 설정 파일
+app/config/settings.py
