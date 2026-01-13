@@ -8,3 +8,8 @@ aiofiles>=24.1.0
 python-multipart>=0.0.12
 httpx>=0.28.0
 Pillow>=11.0.0
+# MusicGen BGM 생성용
+transformers>=4.40.0
+torch>=2.0.0
+torchaudio>=2.0.0
+scipy>=1.10.0

@@ -14,6 +14,7 @@ def ensure_venv():
 
 ensure_venv()
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -21,12 +22,27 @@ from pathlib import Path
 
 from app.config.settings import settings
 from app.routers import diary_router
+from app.services.music_service import music_service
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 서버 시작 시 실행될 로직
+    print("서버 시작: 모델 프리로딩을 시작합니다...")
+    try:
+        music_service._load_model()
+    except Exception as e:
+        print(f"모델 프리로딩 중 오류 발생: {e}")
+    
+    yield
+    # 서버 종료 시 실행될 로직
+    print("서버 종료 중...")
 
 # Create FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
     description="AI와의 대화를 통해 자연스럽게 하루를 회고하고, 감정을 시각화하는 일기 앱",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Include routers

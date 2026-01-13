@@ -12,6 +12,7 @@ app/data/images/*
 *.egg-info/
 dist/
 build/
+.agent/
 
 # API 키가 포함된 설정 파일
 app/config/settings.py

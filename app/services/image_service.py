@@ -9,7 +9,8 @@ from datetime import datetime
 from typing import Optional
 
 from google import genai
-from google.genai import types
+from google.genai import types, errors
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
 from app.config.settings import settings
 
 # Configure Gemini
@@ -49,15 +50,24 @@ class ImageService:
         style_suffix = self.STYLE_PROMPTS.get(style, self.STYLE_PROMPTS["watercolor"])
         full_prompt = f"Generate an artistic image: {prompt}, {style_suffix}. Create a single beautiful image without any text."
         
-        try:
-            # Generate image using Gemini 2.5 Flash Image
-            response = client.models.generate_content(
+        @retry(
+            wait=wait_exponential(multiplier=1, min=2, max=10),
+            stop=stop_after_attempt(3),
+            retry=retry_if_exception_type(errors.ServerError),
+            reraise=True
+        )
+        def _call_gemini():
+            return client.models.generate_content(
                 model=self.model_name,
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE", "TEXT"]
                 )
             )
+
+        try:
+            # Generate image using Gemini 2.5 Flash Image with retry
+            response = _call_gemini()
             
             # Extract image from response
             for part in response.candidates[0].content.parts:

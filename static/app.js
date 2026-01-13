@@ -26,10 +26,40 @@ class AIDiary {
         this.imageGenerateSection = document.getElementById('imageGenerateSection');
         this.generatedImage = document.getElementById('generatedImage');
         this.styleSelect = document.getElementById('styleSelect');
+        this.regenerateStyleSelect = document.getElementById('regenerateStyleSelect');
+        this.imageGallery = document.getElementById('imageGallery');
         this.diaryList = document.getElementById('diaryList');
 
+        // Image gallery state
+        this.imagePaths = [];
+        this.selectedImageIndex = 0;
+
+        // BGM Elements
+        this.bgmSection = document.getElementById('bgmSection');
+        this.bgmGenerateSection = document.getElementById('bgmGenerateSection');
+        this.bgmPlayer = document.getElementById('bgmPlayer');
+        this.bgmCount = 0;
+
+        // Custom Alert
+        this.customAlert = document.getElementById('customAlert');
+        this.alertMessage = document.getElementById('alertMessage');
+        this.btnAlertClose = document.getElementById('alertClose');
+        this.btnThemeToggle = document.getElementById('btnThemeToggle');
+
+        // Custom Confirm
+        this.customConfirm = document.getElementById('customConfirm');
+        this.confirmMessage = document.getElementById('confirmMessage');
+        this.btnConfirmOk = document.getElementById('confirmOk');
+        this.btnConfirmCancel = document.getElementById('confirmCancel');
+        this.confirmCallback = null;
+        this.currentCalendarDate = new Date();
+        this.selectedDateStr = null;
+        this.diariesByDate = {};
+        this.isPickerOpen = false;
+        this.pickerYear = new Date().getFullYear();
 
         this.init();
+        this.initTheme();
     }
 
     init() {
@@ -46,19 +76,69 @@ class AIDiary {
             }
         });
 
-        // Modal controls
+        // Modal controls - X button/Save logic
         document.getElementById('modalClose').addEventListener('click', () => this.closeModal(this.summaryModal));
         document.getElementById('historyModalClose').addEventListener('click', () => this.closeModal(this.historyModal));
         document.getElementById('btnHistory').addEventListener('click', () => this.showHistory());
         document.getElementById('btnNewDiary').addEventListener('click', () => this.startNewDiary());
-        document.getElementById('btnGenerateImage').addEventListener('click', () => this.generateImage());
-
-        // Close modal on backdrop click
-        [this.summaryModal, this.historyModal].forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) this.closeModal(modal);
+        document.getElementById('btnResetSession').addEventListener('click', () => {
+            this.showConfirm('대화 내용을 모두 지우고 새로 시작하시겠습니까?', () => {
+                this.startNewDiary();
             });
         });
+        document.getElementById('btnGenerateImage').addEventListener('click', () => this.generateImage());
+        document.getElementById('btnRegenerateImage').addEventListener('click', () => this.regenerateImage());
+        document.getElementById('btnGenerateBGM').addEventListener('click', () => this.generateBGM());
+        document.getElementById('btnUpdateSummary').addEventListener('click', () => this.updateSummary());
+        document.getElementById('btnSaveDiary').addEventListener('click', () => {
+            this.isSessionActive = false; // Mark session as inactive on save
+            this.showAlert('✅ 일기가 성공적으로 저장되었습니다!');
+            // 저장 성공 메시지를 보여준 후 1.5초 뒤에 모달을 닫고 새 일기 시작
+            setTimeout(() => {
+                this.startNewDiary();
+                this.closeModal(this.customAlert);
+            }, 1500);
+        });
+        this.btnAlertClose.addEventListener('click', () => this.closeModal(this.customAlert));
+
+        this.btnConfirmOk.addEventListener('click', () => {
+            if (this.confirmCallback) this.confirmCallback();
+            this.closeModal(this.customConfirm);
+        });
+        this.btnConfirmCancel.addEventListener('click', () => this.closeModal(this.customConfirm));
+
+        this.btnThemeToggle.addEventListener('click', () => this.toggleTheme());
+
+        // Summary modal backdrop click just closes (keep conversation alive)
+        this.summaryModal.addEventListener('click', (e) => {
+            if (e.target === this.summaryModal) this.closeModal(this.summaryModal);
+        });
+
+        // Other modals backdrop click just closes
+        this.historyModal.addEventListener('click', (e) => {
+            if (e.target === this.historyModal) this.closeModal(this.historyModal);
+        });
+
+        // Calendar navigation
+        document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
+        document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+
+        // Picker toggle
+        const calendarTitle = document.getElementById('calendarTitle');
+        calendarTitle.classList.add('clickable');
+        calendarTitle.addEventListener('click', () => this.togglePicker());
+    }
+
+    initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    }
+
+    toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
 
     autoResize() {
@@ -76,16 +156,20 @@ class AIDiary {
         this.loadingOverlay.classList.remove('active');
     }
 
-    async startSession() {
+    async startSession(dateStr = null) {
         this.showLoading('대화를 준비하고 있어요...');
 
         try {
             const response = await fetch('/api/session/start', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: dateStr })
             });
 
-            if (!response.ok) throw new Error('Failed to start session');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || '세션 생성에 실패했습니다.');
+            }
 
             const data = await response.json();
             this.sessionId = data.session_id;
@@ -99,9 +183,15 @@ class AIDiary {
             this.addMessage('assistant', data.message);
             this.messageInput.focus();
 
+            // Close history modal if open
+            if (this.historyModal.classList.contains('active')) {
+                this.closeModal(this.historyModal);
+            }
+
         } catch (error) {
             console.error('Error starting session:', error);
-            alert('세션 시작에 실패했습니다. 다시 시도해주세요.');
+            // Show the actual error message from server
+            this.showAlert(error.message);
         } finally {
             this.hideLoading();
         }
@@ -222,14 +312,14 @@ class AIDiary {
             if (!response.ok) throw new Error('Failed to end session');
 
             const data = await response.json();
-            this.isSessionActive = false;
+            // this.isSessionActive = false; // Keep session active to allow more conversation
 
             // Show summary modal
             this.showSummaryModal(data);
 
         } catch (error) {
             console.error('Error ending session:', error);
-            alert('일기 정리에 실패했습니다. 다시 시도해주세요.');
+            this.showAlert('일기 정리에 실패했습니다. 다시 시도해주세요.');
         } finally {
             this.hideLoading();
         }
@@ -238,8 +328,8 @@ class AIDiary {
     showSummaryModal(data) {
         const summary = data.summary || {};
 
-        // Set summary text
-        this.summaryText.textContent = summary.summary || '요약을 생성할 수 없었습니다.';
+        // Set summary text (textarea value)
+        this.summaryText.value = summary.summary || '요약을 생성할 수 없었습니다.';
 
         // Set emotion tags
         this.emotionTags.innerHTML = '';
@@ -254,15 +344,36 @@ class AIDiary {
         // Reset image sections
         this.imageSection.style.display = 'none';
         this.imageGenerateSection.style.display = 'block';
+        this.imagePaths = [];
+        this.selectedImageIndex = 0;
+        this.imageGallery.innerHTML = '';
+        this.imageGallery.style.display = 'none';
+
+        // Reset BGM sections
+        this.bgmSection.style.display = 'none';
+        this.bgmGenerateSection.style.display = 'block';
+        this.bgmCount = 0;
 
         // Show modal
         this.summaryModal.classList.add('active');
+    }
+
+    showAlert(message) {
+        this.alertMessage.textContent = message;
+        this.customAlert.classList.add('active');
+    }
+
+    showConfirm(message, callback) {
+        this.confirmMessage.textContent = message;
+        this.confirmCallback = callback;
+        this.customConfirm.classList.add('active');
     }
 
     async generateImage() {
         if (!this.sessionId) return;
 
         const btn = document.getElementById('btnGenerateImage');
+        this.showLoading('이미지를 생성하고 있어요...');
         btn.disabled = true;
         btn.textContent = '🎨 이미지 생성 중...';
 
@@ -278,21 +389,214 @@ class AIDiary {
 
             const data = await response.json();
 
-            if (data.success && data.image_path) {
+            if (data.success && data.image_paths) {
+                // Update gallery state
+                this.imagePaths = data.image_paths;
+                this.selectedImageIndex = data.selected_image_index;
                 // Show generated image
                 this.generatedImage.src = `/api/diaries/${this.sessionId}/image?t=${Date.now()}`;
                 this.imageSection.style.display = 'block';
                 this.imageGenerateSection.style.display = 'none';
+                this.renderGallery();
             } else {
-                alert(data.message || '이미지 생성에 실패했습니다.');
+                this.showAlert(data.message || '이미지 생성에 실패했습니다.');
             }
 
         } catch (error) {
             console.error('Error generating image:', error);
-            alert('이미지 생성에 실패했습니다.');
+            this.showAlert('이미지 생성에 실패했습니다.');
         } finally {
+            this.hideLoading();
             btn.disabled = false;
             btn.textContent = '🎨 이미지 생성하기';
+        }
+    }
+
+    async regenerateImage() {
+        if (!this.sessionId) return;
+
+        // 최대 6개 이미지 제한
+        const MAX_IMAGES = 6;
+        if (this.imagePaths.length >= MAX_IMAGES) {
+            this.showAlert(`한 일기당 최대 ${MAX_IMAGES}개의 이미지만 생성할 수 있습니다.`);
+            return;
+        }
+
+        const btn = document.getElementById('btnRegenerateImage');
+        this.showLoading('새 이미지를 생성하고 있어요...');
+        btn.disabled = true;
+        btn.textContent = '🔄 생성 중...';
+
+        try {
+            const response = await fetch('/api/image/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: this.sessionId,
+                    style: this.regenerateStyleSelect.value
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.image_paths) {
+                // Update gallery with all images
+                this.imagePaths = data.image_paths;
+                this.selectedImageIndex = data.selected_image_index;
+                this.renderGallery();
+                // Update main image
+                this.generatedImage.src = `/api/diaries/${this.sessionId}/image?t=${Date.now()}`;
+            } else {
+                this.showAlert(data.message || '이미지 생성에 실패했습니다.');
+            }
+
+        } catch (error) {
+            console.error('Error regenerating image:', error);
+            this.showAlert('이미지 생성에 실패했습니다.');
+        } finally {
+            this.hideLoading();
+            btn.disabled = false;
+            btn.textContent = '🔄 새 이미지 생성하기';
+        }
+    }
+
+    renderGallery() {
+        this.imageGallery.innerHTML = '';
+
+        if (this.imagePaths.length <= 1) {
+            this.imageGallery.style.display = 'none';
+            return;
+        }
+
+        this.imageGallery.style.display = 'flex';
+
+        this.imagePaths.forEach((path, index) => {
+            const thumb = document.createElement('div');
+            thumb.className = `gallery-thumbnail ${index === this.selectedImageIndex ? 'selected' : ''}`;
+            thumb.innerHTML = `<img src="/api/diaries/${this.sessionId}/image?index=${index}&t=${Date.now()}" alt="이미지 ${index + 1}">`;
+            thumb.addEventListener('click', () => this.selectImage(index));
+            this.imageGallery.appendChild(thumb);
+        });
+    }
+
+    async selectImage(index) {
+        if (!this.sessionId) return;
+
+        try {
+            const response = await fetch(`/api/image/select/${this.sessionId}/${index}`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.selectedImageIndex = data.selected_image_index;
+                this.generatedImage.src = `/api/diaries/${this.sessionId}/image?index=${index}&t=${Date.now()}`;
+                this.renderGallery();
+            }
+        } catch (error) {
+            console.error('Error selecting image:', error);
+        }
+    }
+
+    async generateBGM() {
+        if (!this.sessionId) return;
+
+        // 최대 2개 BGM 제한
+        const MAX_BGM = 2;
+        if (this.bgmCount >= MAX_BGM) {
+            this.showAlert(`한 일기당 최대 ${MAX_BGM}개의 BGM만 생성할 수 있습니다.`);
+            return;
+        }
+
+        const btn = document.getElementById('btnGenerateBGM');
+        this.showLoading('BGM을 생성하고 있어요... (약 1-2분 소요)');
+        btn.disabled = true;
+        btn.textContent = '🎵 BGM 생성 중...';
+
+        try {
+            const response = await fetch('/api/bgm/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: this.sessionId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.bgm_path) {
+                // Show generated BGM
+                this.bgmPlayer.src = `/api/diaries/${this.sessionId}/bgm?t=${Date.now()}`;
+                this.bgmSection.style.display = 'block';
+                this.bgmGenerateSection.style.display = 'none';
+                this.bgmCount++;
+            } else {
+                this.showAlert(data.message || 'BGM 생성에 실패했습니다.');
+            }
+
+        } catch (error) {
+            console.error('Error generating BGM:', error);
+            this.showAlert('BGM 생성에 실패했습니다.');
+        } finally {
+            this.hideLoading();
+            btn.disabled = false;
+            btn.textContent = '🎵 BGM 생성하기';
+        }
+    }
+
+    async updateSummary() {
+        if (!this.sessionId) return;
+
+        const newSummary = this.summaryText.value.trim();
+        if (!newSummary) {
+            this.showAlert('요약 내용을 입력해주세요.');
+            return;
+        }
+
+        const btn = document.getElementById('btnUpdateSummary');
+        btn.disabled = true;
+        btn.textContent = '✨ 태그 재생성 중...';
+
+        try {
+            const response = await fetch('/api/summary/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: this.sessionId,
+                    summary: newSummary
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update emotion tags
+                this.emotionTags.innerHTML = '';
+                (data.emotion_tags || []).forEach(tag => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'emotion-tag';
+                    tagEl.textContent = `#${tag}`;
+                    this.emotionTags.appendChild(tagEl);
+                });
+
+                // Show success message briefly
+                btn.textContent = '✅ 완료!';
+                setTimeout(() => {
+                    btn.textContent = '✨ 태그 재생성하기';
+                }, 1500);
+            } else {
+                this.showAlert(data.message || '태그 재생성에 실패했습니다.');
+            }
+
+        } catch (error) {
+            console.error('Error updating summary:', error);
+            this.showAlert('태그 재생성에 실패했습니다.');
+        } finally {
+            btn.disabled = false;
+            if (btn.textContent !== '✅ 완료!') {
+                btn.textContent = '✨ 태그 재생성하기';
+            }
         }
     }
 
@@ -325,32 +629,247 @@ class AIDiary {
             const response = await fetch('/api/diaries');
             if (!response.ok) throw new Error('Failed to load diaries');
 
-            const diaries = await response.json();
+            const data = await response.json();
+            this.diariesByDate = this.groupDiariesByDate(data);
 
-            this.diaryList.innerHTML = '';
+            // Default to today or most recent date
+            this.currentCalendarDate = new Date();
+            this.renderCalendar();
 
-            if (diaries.length === 0) {
-                this.diaryList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📝</div>
-                        <p>아직 작성한 일기가 없어요.</p>
-                    </div>
-                `;
+            const todayStr = this.formatDateKey(new Date());
+            if (this.diariesByDate[todayStr]) {
+                this.renderDiaryListByDate(todayStr);
             } else {
-                diaries.forEach(diary => {
-                    const item = this.createDiaryItem(diary);
-                    this.diaryList.appendChild(item);
-                });
+                // Find most recent date with diaries
+                const dates = Object.keys(this.diariesByDate).sort().reverse();
+                if (dates.length > 0) {
+                    this.renderDiaryListByDate(dates[0]);
+                } else {
+                    this.diaryList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>아직 작성한 일기가 없어요.</p>
+                        </div>
+                    `;
+                }
             }
 
             this.historyModal.classList.add('active');
 
         } catch (error) {
             console.error('Error loading history:', error);
-            alert('일기 목록을 불러오는데 실패했습니다.');
+            this.showAlert('일기 목록을 불러오는데 실패했습니다.');
         } finally {
             this.hideLoading();
         }
+    }
+
+    groupDiariesByDate(diaries) {
+        const groups = {};
+        diaries.forEach(diary => {
+            const dateStr = this.formatDateKey(new Date(diary.created_at));
+            if (!groups[dateStr]) groups[dateStr] = [];
+            groups[dateStr].push(diary);
+        });
+        return groups;
+    }
+
+    formatDateKey(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    changeMonth(delta) {
+        this.currentCalendarDate.setMonth(this.currentCalendarDate.getMonth() + delta);
+        this.renderCalendar();
+    }
+
+    togglePicker() {
+        this.isPickerOpen = !this.isPickerOpen;
+        if (this.isPickerOpen) {
+            this.pickerYear = this.currentCalendarDate.getFullYear();
+            this.showPicker();
+        } else {
+            this.hidePicker();
+        }
+    }
+
+    showPicker() {
+        let picker = document.getElementById('calendarPicker');
+        if (!picker) {
+            picker = document.createElement('div');
+            picker.id = 'calendarPicker';
+            picker.className = 'calendar-picker';
+            document.querySelector('.history-sidebar').appendChild(picker);
+        }
+        picker.classList.add('active');
+        this.renderPicker();
+    }
+
+    hidePicker() {
+        const picker = document.getElementById('calendarPicker');
+        if (picker) picker.classList.remove('active');
+        this.isPickerOpen = false;
+    }
+
+    renderPicker() {
+        const picker = document.getElementById('calendarPicker');
+        if (!picker) return;
+
+        picker.innerHTML = `
+            <div class="picker-header">
+                <button id="pickerPrevYear">&lt;</button>
+                <span>${this.pickerYear}년</span>
+                <button id="pickerNextYear">&gt;</button>
+            </div>
+            <div class="picker-months">
+                ${Array.from({ length: 12 }, (_, i) => `
+                    <div class="picker-month ${this.isCurrentMonth(i) ? 'active' : ''}" data-month="${i}">${i + 1}월</div>
+                `).join('')}
+            </div>
+        `;
+
+        // Picker events
+        picker.querySelector('#pickerPrevYear').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.pickerYear--;
+            this.renderPicker();
+        });
+        picker.querySelector('#pickerNextYear').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.pickerYear++;
+            this.renderPicker();
+        });
+        picker.querySelectorAll('.picker-month').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const month = parseInt(el.dataset.month);
+                this.currentCalendarDate.setFullYear(this.pickerYear);
+                this.currentCalendarDate.setMonth(month);
+                this.hidePicker();
+                this.renderCalendar();
+            });
+        });
+    }
+
+    isCurrentMonth(month) {
+        return this.currentCalendarDate.getFullYear() === this.pickerYear &&
+            this.currentCalendarDate.getMonth() === month;
+    }
+
+    renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const title = document.getElementById('calendarTitle');
+        grid.innerHTML = '';
+
+        const year = this.currentCalendarDate.getFullYear();
+        const month = this.currentCalendarDate.getMonth();
+
+        title.textContent = `${year}년 ${month + 1}월`;
+
+        // Get first day of month and total days
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+
+        // Previous month filler
+        const prevMonthLastDate = new Date(year, month, 0).getDate();
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day not-current';
+            dayEl.textContent = prevMonthLastDate - i;
+            grid.appendChild(dayEl);
+        }
+
+        // Current month days
+        for (let i = 1; i <= lastDate; i++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day';
+            dayEl.textContent = i;
+
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
+            if (this.diariesByDate[dateStr]) {
+                dayEl.classList.add('has-diary');
+            }
+
+            if (this.selectedDateStr === dateStr) {
+                dayEl.classList.add('active');
+            }
+
+            dayEl.addEventListener('click', () => {
+                this.selectedDateStr = dateStr;
+                this.renderCalendar();
+                this.renderDiaryListByDate(dateStr);
+            });
+
+            grid.appendChild(dayEl);
+        }
+
+        // Next month filler
+        const totalCells = firstDay + lastDate;
+        const remainingCells = 42 - totalCells; // 6 weeks
+        for (let i = 1; i <= remainingCells; i++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day not-current';
+            dayEl.textContent = i;
+            grid.appendChild(dayEl);
+        }
+    }
+
+    renderDiaryListByDate(dateStr) {
+        const diaries = this.diariesByDate[dateStr] || [];
+        this.diaryList.innerHTML = '';
+
+        // Format date for title
+        const dateObj = new Date(dateStr);
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        document.getElementById('selectedDateTitle').textContent = `${formattedDate}의 일기`;
+
+        // Add "Write Diary on this date" button if less than 2 diaries
+        if (diaries.length < 2) {
+            const writeBtnSection = document.createElement('div');
+            writeBtnSection.className = 'history-write-section';
+            writeBtnSection.innerHTML = `
+                <button class="btn-write-on-date" id="btnWriteOnDate">
+                    <span>✍️</span> ${formattedDate} 일기 작성하기 (${diaries.length}/2)
+                </button>
+            `;
+            this.diaryList.appendChild(writeBtnSection);
+
+            document.getElementById('btnWriteOnDate').addEventListener('click', () => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const selectedDate = new Date(dateStr);
+
+                if (selectedDate > today) {
+                    this.showAlert('미래의 일기는 아직 작성할 수 없습니다. 😊');
+                    return;
+                }
+                this.startSession(dateStr);
+            });
+        }
+
+        if (diaries.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = '<p>이 날짜에 작성된 일기가 없습니다.</p>';
+            this.diaryList.appendChild(emptyState);
+            return;
+        }
+
+        diaries.forEach(diary => {
+            const item = this.createDiaryItem(diary);
+            this.diaryList.appendChild(item);
+        });
+
+        this.diaryList.scrollTop = 0;
     }
 
     createDiaryItem(diary) {
@@ -397,7 +916,7 @@ class AIDiary {
             this.sessionId = diary.id;
 
             // Show summary modal with diary data
-            this.summaryText.textContent = diary.summary || '요약 없음';
+            this.summaryText.value = diary.summary || '요약 없음';
 
             this.emotionTags.innerHTML = '';
             (diary.emotion_tags || []).forEach(tag => {
@@ -406,21 +925,44 @@ class AIDiary {
                 tagEl.textContent = `#${tag}`;
                 this.emotionTags.appendChild(tagEl);
             });
+            // Handle images (support both legacy and new format)
+            const hasImages = (diary.image_paths && diary.image_paths.length > 0) || diary.image_path;
+            if (hasImages) {
+                // Set gallery state
+                this.imagePaths = diary.image_paths || [diary.image_path];
+                this.selectedImageIndex = diary.selected_image_index || 0;
 
-            if (diary.image_path) {
                 this.generatedImage.src = `/api/diaries/${diaryId}/image?t=${Date.now()}`;
                 this.imageSection.style.display = 'block';
                 this.imageGenerateSection.style.display = 'none';
+
+                // Render gallery thumbnails
+                this.renderGallery();
             } else {
+                this.imagePaths = [];
+                this.selectedImageIndex = 0;
+                this.imageGallery.innerHTML = '';
                 this.imageSection.style.display = 'none';
                 this.imageGenerateSection.style.display = 'block';
+            }
+
+            // Handle BGM
+            if (diary.bgm_path) {
+                this.bgmPlayer.src = `/api/diaries/${diaryId}/bgm?t=${Date.now()}`;
+                this.bgmSection.style.display = 'block';
+                this.bgmGenerateSection.style.display = 'none';
+                this.bgmCount = 1; // 이미 하나가 있는 상태
+            } else {
+                this.bgmSection.style.display = 'none';
+                this.bgmGenerateSection.style.display = 'block';
+                this.bgmCount = 0;
             }
 
             this.summaryModal.classList.add('active');
 
         } catch (error) {
             console.error('Error loading diary:', error);
-            alert('일기를 불러오는데 실패했습니다.');
+            this.showAlert('일기를 불러오는데 실패했습니다.');
         } finally {
             this.hideLoading();
         }

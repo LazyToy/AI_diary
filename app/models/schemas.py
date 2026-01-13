@@ -27,6 +27,11 @@ class ChatResponse(BaseModel):
     is_complete: bool = Field(default=False, description="Whether diary session is complete")
 
 
+class StartSessionRequest(BaseModel):
+    """Request to start a new diary session"""
+    date: Optional[str] = Field(None, description="ISO format date string (YYYY-MM-DD), defaults to today")
+
+
 class EndSessionRequest(BaseModel):
     """Request to end diary session"""
     session_id: str
@@ -40,7 +45,10 @@ class DiaryEntry(BaseModel):
     summary: Optional[str] = None
     emotion_tags: list[str] = Field(default_factory=list)
     image_prompt: Optional[str] = None
-    image_path: Optional[str] = None
+    image_paths: list[str] = Field(default_factory=list, description="여러 이미지 경로 목록")
+    selected_image_index: int = Field(default=0, description="선택된 대표 이미지 인덱스")
+    bgm_prompt: Optional[str] = None
+    bgm_path: Optional[str] = None
     style: str = Field(default="watercolor", description="Image style preference")
 
 
@@ -51,6 +59,7 @@ class DiaryListItem(BaseModel):
     summary: Optional[str] = None
     emotion_tags: list[str] = Field(default_factory=list)
     has_image: bool = False
+    has_bgm: bool = False
 
 
 class GenerateImageRequest(BaseModel):
@@ -59,8 +68,20 @@ class GenerateImageRequest(BaseModel):
     style: str = Field(default="watercolor", description="수채화, 픽셀아트, 실사 등")
 
 
+class GenerateBGMRequest(BaseModel):
+    """Request to generate BGM"""
+    session_id: str
+
+
 class SummaryResponse(BaseModel):
     """Summary generation response"""
     summary: str
     emotion_tags: list[str]
     image_prompt: str
+
+
+class UpdateSummaryRequest(BaseModel):
+    """Request to update summary and regenerate tags"""
+    session_id: str
+    summary: str = Field(..., description="수정된 요약 내용")
+

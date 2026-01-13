@@ -40,12 +40,14 @@ class GeminiService:
 1. 3-5문장의 일기 형식 요약을 작성하세요.
 2. 주요 감정을 태그로 추출하세요 (예: #기쁨, #설렘, #피곤)
 3. 이미지 생성을 위한 시각적 묘사를 작성하세요 (날씨, 표정, 색감, 분위기 등)
+4. BGM 생성을 위한 음악적 묘사를 작성하세요 (분위기에 맞는 악기, 템포, 무드 등)
 
 JSON 형식으로 응답하세요:
 {
     "summary": "오늘 하루 일기 요약...",
     "emotion_tags": ["기쁨", "설렘"],
-    "image_prompt": "A warm sunset scene with soft orange and pink colors, a person sitting peacefully..."
+    "image_prompt": "A warm sunset scene with soft orange and pink colors, a person sitting peacefully...",
+    "bgm_prompt": "gentle piano melody with soft strings, warm and peaceful mood, slow tempo"
 }"""
 
     def __init__(self):
@@ -54,9 +56,22 @@ JSON 형식으로 응답하세요:
         self.sessions: dict[str, list[types.Content]] = {}
     
     def get_or_create_session(self, session_id: str) -> list[types.Content]:
-        """Get existing chat history or create new one"""
+        """Get existing chat history or create new one (recovers from disk if needed)"""
         if session_id not in self.sessions:
-            self.sessions[session_id] = []
+            # Try to recover from diary_service if it exists
+            from app.services.diary_service import diary_service
+            diary = diary_service.get_diary(session_id)
+            if diary and diary.conversation:
+                history = []
+                for msg in diary.conversation:
+                    role = "model" if msg.role == "model" else "user"
+                    history.append(types.Content(
+                        role=role,
+                        parts=[types.Part.from_text(text=msg.content)]
+                    ))
+                self.sessions[session_id] = history
+            else:
+                self.sessions[session_id] = []
         return self.sessions[session_id]
     
     def chat(self, session_id: str, user_message: str) -> tuple[str, bool]:
@@ -187,6 +202,42 @@ JSON 형식으로 응답하세요."""
                 "image_prompt": ""
             }
     
+    def regenerate_tags(self, summary: str) -> dict:
+        """수정된 요약 내용을 기반으로 감정 태그 재생성"""
+        import json
+        
+        prompt = f"""다음 일기 요약을 분석하고 감정 태그와 이미지/BGM 프롬프트를 생성해주세요:
+
+요약: {summary}
+
+JSON 형식으로 응답하세요:
+{{
+    "emotion_tags": ["감정1", "감정2"],
+    "image_prompt": "시각적 묘사...",
+    "bgm_prompt": "음악적 묘사..."
+}}"""
+
+        response = client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
+        
+        try:
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            return json.loads(text.strip())
+        except json.JSONDecodeError:
+            return {
+                "emotion_tags": [],
+                "image_prompt": "",
+                "bgm_prompt": ""
+            }
+    
     def clear_session(self, session_id: str):
         """Clear a session from memory"""
         if session_id in self.sessions:
@@ -195,3 +246,4 @@ JSON 형식으로 응답하세요."""
 
 # Global service instance
 gemini_service = GeminiService()
+

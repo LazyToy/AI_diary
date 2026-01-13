@@ -23,11 +23,11 @@ class DiaryService:
         """Get file path for a diary entry"""
         return self.diaries_dir / f"{diary_id}.json"
     
-    def create_diary(self, session_id: str) -> DiaryEntry:
+    def create_diary(self, session_id: str, date: Optional[datetime] = None) -> DiaryEntry:
         """Create a new diary entry"""
         diary = DiaryEntry(
             id=session_id,
-            created_at=datetime.now(),
+            created_at=date or datetime.now(),
             conversation=[],
         )
         self.save_diary(diary)
@@ -49,17 +49,17 @@ class DiaryService:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(diary.model_dump(mode="json"), f, ensure_ascii=False, indent=2, default=str)
     
-    def update_conversation(self, diary_id: str, role: str, content: str):
+    def update_conversation(self, diary_id: str, role: str, content: str, timestamp: Optional[datetime] = None):
         """Add a message to diary conversation"""
         diary = self.get_diary(diary_id)
         if not diary:
-            diary = self.create_diary(diary_id)
+            diary = self.create_diary(diary_id, date=timestamp)
         
         diary.conversation.append(ChatMessage(
             role=role,
             content=content,
-            timestamp=datetime.now()
-        ))
+            timestamp=timestamp or datetime.now()
+        ) )
         self.save_diary(diary)
         return diary
     
@@ -85,6 +85,38 @@ class DiaryService:
         self.save_diary(diary)
         return diary
     
+    def add_image_path(self, diary_id: str, image_path: str):
+        """Add new image path to diary's image list"""
+        diary = self.get_diary(diary_id)
+        if not diary:
+            return None
+        
+        diary.image_paths.append(image_path)
+        diary.selected_image_index = len(diary.image_paths) - 1  # 새 이미지를 선택
+        self.save_diary(diary)
+        return diary
+    
+    def select_image(self, diary_id: str, image_index: int):
+        """Select an image from the gallery"""
+        diary = self.get_diary(diary_id)
+        if not diary:
+            return None
+        
+        if 0 <= image_index < len(diary.image_paths):
+            diary.selected_image_index = image_index
+            self.save_diary(diary)
+        return diary
+    
+    def update_bgm_path(self, diary_id: str, bgm_path: str):
+        """Update diary with generated BGM path"""
+        diary = self.get_diary(diary_id)
+        if not diary:
+            return None
+        
+        diary.bgm_path = bgm_path
+        self.save_diary(diary)
+        return diary
+    
     
     def list_diaries(self) -> list[DiaryListItem]:
         """List all diary entries"""
@@ -98,7 +130,8 @@ class DiaryService:
                     created_at=data["created_at"],
                     summary=data.get("summary"),
                     emotion_tags=data.get("emotion_tags", []),
-                    has_image=bool(data.get("image_path"))
+                    has_image=bool(data.get("image_paths") or data.get("image_path")),
+                    has_bgm=bool(data.get("bgm_path"))
                 ))
             except Exception:
                 continue
@@ -112,9 +145,22 @@ class DiaryService:
             return True
         return False
     
-    def generate_session_id(self) -> str:
-        """Generate a new unique session ID"""
-        return f"diary_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+    def count_diaries_by_date(self, date_str: str) -> int:
+        """특정 날짜(YYYYMMDD)에 작성된 일기 개수를 반환"""
+        prefix = f"diary_{date_str}"
+        count = 0
+        for path in self.diaries_dir.glob(f"{prefix}_*.json"):
+            count += 1
+        return count
+
+    def count_today_diaries(self) -> int:
+        """오늘 작성된 일기 개수를 반환"""
+        return self.count_diaries_by_date(datetime.now().strftime('%Y%m%d'))
+
+    def generate_session_id(self, date_str: Optional[str] = None) -> str:
+        """Generate a new unique session ID (optional custom date)"""
+        d_str = date_str or datetime.now().strftime('%Y%m%d')
+        return f"diary_{d_str}_{datetime.now().strftime('%H%M%S')}_{uuid.uuid4().hex[:6]}"
 
 
 # Global service instance

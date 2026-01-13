@@ -21,11 +21,26 @@
                     <span class="logo-icon">📔</span>
                     AI 일기
                 </h1>
-                <button class="btn-history" id="btnHistory" title="지난 일기">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </button>
+                <div class="header-actions">
+                    <button class="header-btn" id="btnThemeToggle" title="테마 변경">
+                        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5" />
+                            <path
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                        <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                        </svg>
+                    </button>
+                    <button class="header-btn" id="btnHistory" title="지난 일기">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -52,7 +67,10 @@
                         </svg>
                     </button>
                 </div>
-                <button class="btn-end-session" id="btnEndSession">일기 마무리하기</button>
+                <div class="input-actions">
+                    <button class="btn-reset-session" id="btnResetSession">초기화</button>
+                    <button class="btn-end-session" id="btnEndSession">일기 마무리하기</button>
+                </div>
             </div>
         </main>
 
@@ -65,8 +83,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="summary-section">
-                        <h3>요약</h3>
-                        <p id="summaryText"></p>
+                        <h3>요약 <span class="edit-hint">(직접 수정 가능)</span></h3>
+                        <textarea id="summaryText" class="summary-textarea" rows="4"></textarea>
+                        <button class="btn-update-summary" id="btnUpdateSummary">
+                            ✨ 태그 재생성하기
+                        </button>
                     </div>
                     <div class="tags-section">
                         <h3>감정 태그</h3>
@@ -76,6 +97,25 @@
                         <h3>오늘의 그림</h3>
                         <div class="image-container">
                             <img id="generatedImage" src="" alt="생성된 이미지">
+                        </div>
+                        <div class="image-gallery" id="imageGallery">
+                            <!-- Thumbnails will be added here dynamically -->
+                        </div>
+                        <div class="regenerate-section">
+                            <div class="style-selector">
+                                <label>화풍 선택:</label>
+                                <select id="regenerateStyleSelect">
+                                    <option value="watercolor">수채화</option>
+                                    <option value="oil_painting">유화</option>
+                                    <option value="anime">애니메이션</option>
+                                    <option value="pixel">픽셀 아트</option>
+                                    <option value="sketch">스케치</option>
+                                    <option value="realistic">실사</option>
+                                </select>
+                            </div>
+                            <button class="btn-regenerate-image" id="btnRegenerateImage">
+                                🔄 새 이미지 생성하기
+                            </button>
                         </div>
                     </div>
                     <div class="image-generate-section" id="imageGenerateSection">
@@ -96,9 +136,25 @@
                         </button>
                     </div>
 
+                    <!-- BGM Section -->
+                    <div class="bgm-section" id="bgmSection" style="display: none;">
+                        <h3>🎵 오늘의 BGM</h3>
+                        <div class="bgm-player">
+                            <audio id="bgmPlayer" controls></audio>
+                        </div>
+                    </div>
+                    <div class="bgm-generate-section" id="bgmGenerateSection">
+                        <h3>🎵 BGM 생성</h3>
+                        <p class="bgm-description">일기의 분위기에 맞는 배경 음악을 생성합니다.</p>
+                        <button class="btn-generate-bgm" id="btnGenerateBGM">
+                            🎵 BGM 생성하기
+                        </button>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-new-diary" id="btnNewDiary">새 일기 시작</button>
+                    <button class="btn-primary" id="btnNewDiary">📝 새 일기 시작</button>
+                    <button class="btn-primary" id="btnSaveDiary">💾 일기 저장</button>
                 </div>
             </div>
         </div>
@@ -110,9 +166,25 @@
                     <h2>📚 지난 일기</h2>
                     <button class="modal-close" id="historyModalClose">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <div class="diary-list" id="diaryList">
-                        <!-- Diary list items will be inserted here -->
+                <div class="modal-body history-modal-body">
+                    <div class="history-sidebar">
+                        <div class="calendar-header">
+                            <button id="prevMonth">&lt;</button>
+                            <span id="calendarTitle">2026년 1월</span>
+                            <button id="nextMonth">&gt;</button>
+                        </div>
+                        <div class="calendar-grid-header">
+                            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar days will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="history-main">
+                        <h3 id="selectedDateTitle">일기 목록</h3>
+                        <div class="diary-list" id="diaryList">
+                            <!-- Diary list items will be inserted here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,6 +194,27 @@
         <div class="loading-overlay" id="loadingOverlay">
             <div class="loading-spinner"></div>
             <p id="loadingText">잠시만 기다려주세요...</p>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div class="modal alert-modal" id="customAlert">
+        <div class="modal-content alert-content">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-message" id="alertMessage"></div>
+            <button class="btn-primary" id="alertClose">확인</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div class="modal alert-modal" id="customConfirm">
+        <div class="modal-content alert-content">
+            <div class="alert-icon">❓</div>
+            <div class="alert-message" id="confirmMessage"></div>
+            <div class="alert-footer">
+                <button class="btn-secondary" id="confirmCancel">취소</button>
+                <button class="btn-primary" id="confirmOk">확인</button>
+            </div>
         </div>
     </div>
 
