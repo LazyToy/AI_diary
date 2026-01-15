@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제하기 - AI 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- TossPayments SDK -->
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252542;
+            --accent-primary: #7c3aed;
+            --accent-secondary: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(148, 163, 184, 0.1);
+            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* Refined Design - Dark */
+        body.refined-design {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary: #2e2e2e;
+            --accent-primary: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+            --text-muted: #d0d0d0;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --gradient-primary: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+        }
+
+        /* Refined Design - Light */
+        body.refined-design.light-theme {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e8e8e8;
+            --accent-primary: #0a0a0a;
+            --text-primary: #0a0a0a;
+            --text-secondary: #333333;
+            --text-muted: #555555;
+            --border-color: rgba(0, 0, 0, 0.15);
+            --gradient-primary: linear-gradient(135deg, #0a0a0a 0%, #333333 100%);
+        }
+
+        /* Modern Design - Dark */
+        body.modern-design {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --accent-primary: #00d084;
+            --text-primary: #ffffff;
+            --text-secondary: #abb8c3;
+            --text-muted: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --gradient-primary: linear-gradient(135deg, #00d084 0%, #7bdcb5 100%);
+        }
+
+        /* Modern Design - Light */
+        body.modern-design.light-theme {
+            --bg-primary: #f8faf9;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e8f5f0;
+            --accent-primary: #00a86b;
+            --text-primary: #0a0a0a;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: rgba(0, 168, 107, 0.15);
+            --gradient-primary: linear-gradient(135deg, #00a86b 0%, #00d084 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body.light-theme::before {
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+        }
+
+        body.refined-design::before {
+            background: none;
+        }
+
+        body.modern-design::before {
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(0, 208, 132, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(123, 220, 181, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        .order-info {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .order-item .label {
+            color: var(--text-secondary);
+        }
+
+        .order-item .value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .order-item.total .value {
+            font-size: 1.25rem;
+            color: #f59e0b;
+        }
+
+        .benefits-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+
+        .benefits-list .benefit {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .benefits-list .benefit strong {
+            color: var(--text-primary);
+        }
+
+        #payment-widget {
+            margin-bottom: 1rem;
+        }
+
+        #agreement {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-pay {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-back:hover {
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        // 페이지 로드 전 테마와 디자인 모드 적용 (깜빡임 방지)
+        (function () {
+            const theme = localStorage.getItem('theme');
+            const designMode = localStorage.getItem('designMode');
+
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            }
+            if (designMode === 'refined') {
+                document.documentElement.classList.add('refined-design');
+            } else if (designMode === 'modern') {
+                document.documentElement.classList.add('modern-design');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <script>
+        // body 로드 후 테마와 디자인 모드 클래스 적용
+        const theme = localStorage.getItem('theme');
+        const designMode = localStorage.getItem('designMode');
+
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+        if (designMode === 'refined') {
+            document.body.classList.add('refined-design');
+        } else if (designMode === 'modern') {
+            document.body.classList.add('modern-design');
+        }
+    </script>
+    <div class="container">
+        <div class="header">
+            <h1>💎 AI 일기 프리미엄</h1>
+            <p>30일 동안 더 많은 기능을 이용하세요</p>
+        </div>
+
+        <div class="order-info">
+            <h3>📋 주문 정보</h3>
+            <div class="order-item">
+                <span class="label">상품명</span>
+                <span class="value">AI 일기 프리미엄 (30일)</span>
+            </div>
+            <div class="order-item total">
+                <span class="label">결제 금액</span>
+                <span class="value">₩5,000</span>
+            </div>
+            <div class="benefits-list">
+                <div class="benefit">🎨 하루 이미지 생성 <strong>30개</strong></div>
+                <div class="benefit">🎵 하루 BGM 생성 <strong>10개</strong></div>
+                <div class="benefit">📔 하루 일기 작성 <strong>10개</strong></div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>결제 위젯을 불러오는 중...</p>
+        </div>
+
+        <!-- 결제수단 위젯 -->
+        <div id="payment-widget"></div>
+
+        <!-- 약관 동의 위젯 -->
+        <div id="agreement"></div>
+
+        <button class="btn-pay" id="btn-pay" style="display: none;">₩5,000 결제하기</button>
+
+        <a href="/" class="btn-back">← 돌아가기</a>
+    </div>
+
+    <script>
+        // TossPayments 테스트 클라이언트 키
+        const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+        const customerKey = "customer_" + Math.random().toString(36).substring(2, 15);
+
+        let widgets = null;
+
+        async function initPayment() {
+            try {
+                // TossPayments 초기화
+                const tossPayments = TossPayments(clientKey);
+
+                // 결제 위젯 인스턴스 생성
+                widgets = tossPayments.widgets({
+                    customerKey: customerKey
+                });
+
+                // 결제 금액 설정 (5,000원)
+                await widgets.setAmount({
+                    currency: "KRW",
+                    value: 5000
+                });
+
+                // 결제수단 UI 렌더링
+                await widgets.renderPaymentMethods({
+                    selector: "#payment-widget",
+                    variantKey: "DEFAULT"
+                });
+
+                // 약관 UI 렌더링
+                await widgets.renderAgreement({
+                    selector: "#agreement",
+                    variantKey: "AGREEMENT"
+                });
+
+                // 로딩 숨기고 결제 버튼 표시
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('btn-pay').style.display = 'block';
+
+            } catch (error) {
+                console.error('결제 위젯 초기화 오류:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #ef4444;">결제 위젯을 불러오는데 실패했습니다.</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.85rem;">${error.message}</p>
+                `;
+            }
+        }
+
+        // 결제 요청
+        async function requestPayment() {
+            const payButton = document.getElementById('btn-pay');
+            payButton.disabled = true;
+            payButton.textContent = '결제 처리 중...';
+
+            try {
+                // 주문 ID 생성 (고유해야 함)
+                const orderId = "ORDER_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+
+                await widgets.requestPayment({
+                    orderId: orderId,
+                    orderName: "AI 일기 프리미엄 (30일)",
+                    successUrl: window.location.origin + "/static/payment-success.html",
+                    failUrl: window.location.origin + "/static/payment-fail.html",
+                    customerEmail: "test@example.com",
+                    customerName: "테스트 사용자"
+                });
+
+            } catch (error) {
+                console.error('결제 요청 오류:', error);
+                alert('결제 요청에 실패했습니다: ' + error.message);
+                payButton.disabled = false;
+                payButton.textContent = '₩5,000 결제하기';
+            }
+        }
+
+        // 이벤트 리스너
+        document.getElementById('btn-pay').addEventListener('click', requestPayment);
+
+        // 페이지 로드 시 초기화
+        initPayment();
+    </script>
+</body>
+
+</html>

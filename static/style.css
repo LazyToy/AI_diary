@@ -140,9 +140,365 @@ body.light-theme::before {
 }
 
 .header-btn:hover {
-    background: var(--accent-primary);
+    background: var(--surface-light);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.login-btn {
+    padding: 6px 16px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-btn:hover {
+    color: white;
+    opacity: 0.9;
+}
+
+#user-button-container {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* Payment Button */
+.payment-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+    border: none !important;
+    color: #1a1a2e !important;
+}
+
+.payment-btn:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* Payment Modal */
+.payment-content {
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+}
+
+.payment-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.payment-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.payment-price {
+    font-size: 2.5rem;
+    font-weight: 800;
     color: var(--text-primary);
-    box-shadow: var(--shadow-glow);
+    margin: 1rem 0;
+}
+
+.payment-benefits {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.benefit-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.benefit-item:first-child {
+    padding-top: 0;
+}
+
+.benefit-icon {
+    font-size: 1.25rem;
+}
+
+.benefit-text {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.benefit-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.payment-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.payment-actions .btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    color: #1a1a2e;
+}
+
+.payment-actions .btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+}
+
+/* Design Mode Selector */
+.design-mode-selector {
+    display: flex;
+    align-items: center;
+}
+
+.design-select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: var(--transition);
+    outline: none;
+}
+
+.design-select:hover,
+.design-select:focus {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+
+.design-select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Refined Design Mode - Clean Minimal */
+/* Dark Theme (Default) */
+body.refined-design {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-tertiary: #2e2e2e;
+    --accent-primary: #ffffff;
+    --accent-secondary: #f5f5f5;
+    --accent-glow: rgba(255, 255, 255, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #f0f0f0;
+    --text-muted: #d0d0d0;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --gradient-primary: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+    --gradient-glow: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+body.refined-design::before {
+    background: none;
+}
+
+body.refined-design .header {
+    background: rgba(26, 26, 26, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.refined-design .logo {
+    background: #ffffff;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body.refined-design .input-container {
+    background: rgba(26, 26, 26, 0.95);
+}
+
+body.refined-design .emotion-tag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* 세련된 다크모드 - 사용자 채팅 메시지 배경 */
+body.refined-design .message.user .message-content {
+    background: #0a0a0a;
+    color: #ffffff;
+}
+
+/* Refined Design - Light Theme */
+body.refined-design.light-theme {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e8e8e8;
+    --accent-primary: #0a0a0a;
+    --accent-secondary: #1a1a1a;
+    --accent-glow: rgba(0, 0, 0, 0.12);
+    --text-primary: #0a0a0a;
+    --text-secondary: #333333;
+    --text-muted: #555555;
+    --border-color: rgba(0, 0, 0, 0.15);
+    --gradient-primary: linear-gradient(135deg, #0a0a0a 0%, #333333 100%);
+    --gradient-glow: linear-gradient(135deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.08) 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.refined-design.light-theme .header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.refined-design.light-theme .logo {
+    background: #1a1a1a;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body.refined-design.light-theme .input-container {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+body.refined-design.light-theme .emotion-tag {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: #333333;
+}
+
+/* Modern Design Mode - Cutefold Inspired */
+/* Dark Theme (Default) */
+body.modern-design {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1a1a1a;
+    --accent-primary: #00d084;
+    --accent-secondary: #7bdcb5;
+    --accent-glow: rgba(0, 208, 132, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #abb8c3;
+    --text-muted: #6b7280;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --success: #00d084;
+    --warning: #fcb900;
+    --error: #cf2e2e;
+    --gradient-primary: linear-gradient(135deg, #00d084 0%, #7bdcb5 100%);
+    --gradient-glow: linear-gradient(135deg, rgba(0, 208, 132, 0.1) 0%, rgba(123, 220, 181, 0.1) 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 30px rgba(0, 208, 132, 0.2);
+}
+
+body.modern-design::before {
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(0, 208, 132, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(123, 220, 181, 0.05) 0%, transparent 50%);
+}
+
+body.modern-design .header {
+    background: rgba(10, 10, 10, 0.9);
+    border-bottom: 1px solid rgba(0, 208, 132, 0.1);
+}
+
+body.modern-design .logo {
+    background: linear-gradient(135deg, #00d084 0%, #7bdcb5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body.modern-design .input-container {
+    background: rgba(10, 10, 10, 0.95);
+}
+
+body.modern-design .emotion-tag {
+    background: rgba(0, 208, 132, 0.1);
+    border: 1px solid rgba(0, 208, 132, 0.3);
+    color: #7bdcb5;
+}
+
+body.modern-design .btn-start,
+body.modern-design .btn-primary,
+body.modern-design .btn-send,
+body.modern-design .btn-generate-image,
+body.modern-design .btn-regenerate-image {
+    background: linear-gradient(135deg, #00d084 0%, #00b572 100%);
+}
+
+body.modern-design .header-btn:hover {
+    background: #00d084;
+}
+
+/* Modern Design - Light Theme */
+body.modern-design.light-theme {
+    --bg-primary: #f8faf9;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e8f5f0;
+    --accent-primary: #00a86b;
+    --accent-secondary: #00d084;
+    --accent-glow: rgba(0, 168, 107, 0.12);
+    --text-primary: #0a0a0a;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-color: rgba(0, 168, 107, 0.15);
+    --gradient-primary: linear-gradient(135deg, #00a86b 0%, #00d084 100%);
+    --gradient-glow: linear-gradient(135deg, rgba(0, 168, 107, 0.08) 0%, rgba(0, 208, 132, 0.08) 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 168, 107, 0.08);
+    --shadow-md: 0 4px 24px rgba(0, 168, 107, 0.12);
+    --shadow-lg: 0 8px 48px rgba(0, 168, 107, 0.15);
+    --shadow-glow: 0 0 30px rgba(0, 168, 107, 0.1);
+}
+
+body.modern-design.light-theme::before {
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(0, 168, 107, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 208, 132, 0.04) 0%, transparent 50%);
+}
+
+body.modern-design.light-theme .header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 168, 107, 0.1);
+}
+
+body.modern-design.light-theme .logo {
+    background: linear-gradient(135deg, #00a86b 0%, #00d084 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body.modern-design.light-theme .input-container {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+body.modern-design.light-theme .emotion-tag {
+    background: rgba(0, 168, 107, 0.08);
+    border: 1px solid rgba(0, 168, 107, 0.25);
+    color: #00a86b;
 }
 
 body.light-theme .moon-icon {
@@ -1216,6 +1572,38 @@ body.light-theme .btn-end-session:hover {
     color: var(--text-secondary);
 }
 
+.diary-item-actions {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.diary-item-badge {
+    font-size: 0.85rem;
+}
+
+.diary-edit-btn,
+.diary-delete-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.3rem;
+    border-radius: var(--radius-sm);
+    opacity: 0.6;
+    transition: var(--transition);
+}
+
+.diary-edit-btn:hover {
+    opacity: 1;
+    background: rgba(124, 58, 237, 0.2);
+}
+
+.diary-delete-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.2);
+}
+
 
 .diary-item-summary {
     color: var(--text-primary);
@@ -1341,5 +1729,219 @@ body.light-theme .btn-end-session:hover {
 
     .date-item {
         white-space: nowrap;
+    }
+}
+
+/* ===========================
+   Dashboard Styles
+   =========================== */
+
+/* 검색 및 필터 섹션 */
+.search-filter-section {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-bar {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-bar input {
+    flex: 1;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.btn-search {
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    color: white;
+}
+
+.tag-filter select {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* 기간 선택 탭 */
+.period-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.period-tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.period-tab:hover {
+    border-color: var(--accent-primary);
+}
+
+.period-tab.active {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+}
+
+/* 대시보드 섹션 */
+.dashboard-section {
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.dashboard-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.stats-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.stats-info span {
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+/* 차트 컨테이너 */
+.chart-container {
+    position: relative;
+    height: 200px;
+    margin-bottom: 1rem;
+}
+
+/* 대시보드 태그 목록 */
+.emotion-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.emotion-tags-list .emotion-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.emotion-tags-list .tag-count {
+    font-size: 0.75rem;
+    background: var(--accent-primary);
+    color: white;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.25rem;
+}
+
+/* 베스트 미디어 컨테이너 */
+.best-media-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.best-media-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+}
+
+.best-media-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.best-image-wrapper,
+.best-bgm-wrapper {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.best-image-wrapper img {
+    max-width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.best-bgm-wrapper audio {
+    width: 100%;
+}
+
+.no-media {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.best-summary {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 반응형 대시보드 */
+@media (max-width: 600px) {
+    .best-media-container {
+        grid-template-columns: 1fr;
+    }
+
+    .period-tabs {
+        flex-direction: column;
+    }
+
+    .search-filter-section {
+        padding: 0.5rem;
     }
 }

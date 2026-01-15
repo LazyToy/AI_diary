@@ -1,0 +1,36 @@
+{
+  "id": "diary_20260114_182815_6ac6fb",
+  "created_at": "2026-01-14T00:00:00",
+  "conversation": [
+    {
+      "role": "model",
+      "content": "안녕하세요! 오늘 하루는 어떠셨나요? 😊 혹시 특별하거나 기억에 남는 일이 있으셨는지 궁금하네요. 어떤 이야기든 편하게 말씀해주세요. 제가 함께 들어드릴게요. \n",
+      "timestamp": "2026-01-14T00:00:00"
+    },
+    {
+      "role": "user",
+      "content": "오늘 너무 힘들어",
+      "timestamp": "2026-01-14T18:28:22.872381"
+    },
+    {
+      "role": "model",
+      "content": "정말 힘든 하루였군요. 어떤 점이 특히 힘들었는지 조금 더 자세히 말씀해주실 수 있을까요? 어떤 일이 있었는지, 또는 어떤 감정이 드셨는지 알려주시면 제가 더 잘 공감할 수 있을 것 같아요. 괜찮으시다면, 천천히 이야기해주세요. 제가 옆에서 함께 하겠습니다.\n",
+      "timestamp": "2026-01-14T18:28:24.561923"
+    }
+  ],
+  "summary": "오늘 하루는 유독 힘든 날이었다. 모델은 나의 힘든 하루에 대해 공감하며, 어떤 점이 힘들었는지 자세히 물어봐 주었다. 힘든 감정을 털어놓을 수 있도록 옆에서 함께 하겠다는 따뜻한 위로를 받았다. 덕분에 조금이나마 마음이 편안해지는 기분이다.",
+  "emotion_tags": [
+    "#힘듦",
+    "#위로",
+    "#공감",
+    "#안도"
+  ],
+  "image_prompt": "A dimly lit room with soft shadows, a person sitting with a weary expression, looking slightly comforted by a gentle light shining through a window, warm and muted colors.",
+  "image_paths": [
+    "D:\\HY\\develop_Project\\ai_diary\\app\\data\\images\\diary_20260114_182815_6ac6fb_182841.png"
+  ],
+  "selected_image_index": 0,
+  "bgm_prompt": "A quiet and soothing ambient piece featuring soft piano chords and gentle strings, creating a sense of calm and empathy. The tempo is slow and deliberate, with a focus on creating a safe and supportive atmosphere. Minimalist, spacious, and emotionally resonant.",
+  "bgm_path": null,
+  "style": "watercolor"
+}

@@ -40,14 +40,14 @@ class GeminiService:
 1. 3-5문장의 일기 형식 요약을 작성하세요.
 2. 주요 감정을 태그로 추출하세요 (예: #기쁨, #설렘, #피곤)
 3. 이미지 생성을 위한 시각적 묘사를 작성하세요 (날씨, 표정, 색감, 분위기 등)
-4. BGM 생성을 위한 음악적 묘사를 작성하세요 (분위기에 맞는 악기, 템포, 무드 등)
+4. BGM 생성을 위한 음악적 묘사를 작성하세요. 요약된 일기의 스토리와 감정의 흐름을 반영하여, 단순히 악기 이름만 나열하지 말고 전체적인 공간감, 템포, 분위기, 스타일(Lo-fi, Ambient, Cinematic, Orchestral 등)을 포함하세요.
 
 JSON 형식으로 응답하세요:
 {
     "summary": "오늘 하루 일기 요약...",
     "emotion_tags": ["기쁨", "설렘"],
     "image_prompt": "A warm sunset scene with soft orange and pink colors, a person sitting peacefully...",
-    "bgm_prompt": "gentle piano melody with soft strings, warm and peaceful mood, slow tempo"
+    "bgm_prompt": "cinematic and hopeful orchestral score that gradually builds energy, reflecting a sense of new beginnings, warm atmosphere"
 }"""
 
     def __init__(self):
@@ -55,31 +55,34 @@ JSON 형식으로 응답하세요:
         # Session storage: session_id -> chat history
         self.sessions: dict[str, list[types.Content]] = {}
     
-    def get_or_create_session(self, session_id: str) -> list[types.Content]:
+    def get_or_create_session(self, session_id: str, user_id: str = None) -> list[types.Content]:
         """Get existing chat history or create new one (recovers from disk if needed)"""
         if session_id not in self.sessions:
             # Try to recover from diary_service if it exists
-            from app.services.diary_service import diary_service
-            diary = diary_service.get_diary(session_id)
-            if diary and diary.conversation:
-                history = []
-                for msg in diary.conversation:
-                    role = "model" if msg.role == "model" else "user"
-                    history.append(types.Content(
-                        role=role,
-                        parts=[types.Part.from_text(text=msg.content)]
-                    ))
-                self.sessions[session_id] = history
+            if user_id:
+                from app.services.diary_service import diary_service
+                diary = diary_service.get_diary(session_id, user_id)
+                if diary and diary.conversation:
+                    history = []
+                    for msg in diary.conversation:
+                        role = "model" if msg.role == "model" else "user"
+                        history.append(types.Content(
+                            role=role,
+                            parts=[types.Part.from_text(text=msg.content)]
+                        ))
+                    self.sessions[session_id] = history
+                else:
+                    self.sessions[session_id] = []
             else:
                 self.sessions[session_id] = []
         return self.sessions[session_id]
     
-    def chat(self, session_id: str, user_message: str) -> tuple[str, bool]:
+    def chat(self, session_id: str, user_message: str, user_id: str = None) -> tuple[str, bool]:
         """
         Send message and get response
         Returns: (response_text, is_session_complete)
         """
-        history = self.get_or_create_session(session_id)
+        history = self.get_or_create_session(session_id, user_id)
         
         # Check for explicit end commands
         end_keywords = ["그만", "여기까지", "끝", "종료", "마무리"]
@@ -113,9 +116,9 @@ JSON 형식으로 응답하세요:
         
         return response_text, is_complete
     
-    def get_initial_greeting(self, session_id: str) -> str:
+    def get_initial_greeting(self, session_id: str, user_id: str = None) -> str:
         """Get initial greeting from AI"""
-        history = self.get_or_create_session(session_id)
+        history = self.get_or_create_session(session_id, user_id)
         
         # Add initial prompt
         history.append(types.Content(

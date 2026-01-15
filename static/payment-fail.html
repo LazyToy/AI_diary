@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 실패 - AI 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+            --radius-md: 12px;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        /* Refined Design */
+        body.refined-design {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+        }
+
+        body.refined-design.light-theme {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #333333;
+        }
+
+        /* Modern Design */
+        body.modern-design {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #abb8c3;
+        }
+
+        body.modern-design.light-theme {
+            --bg-primary: #f8faf9;
+            --bg-secondary: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #4a5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body.refined-design::before {
+            background: none;
+        }
+
+        body.modern-design::before {
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(0, 208, 132, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(123, 220, 181, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 500px;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            animation: shake 0.6s ease-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-5px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--error);
+        }
+
+        .message {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .error-details {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .error-details .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .error-details .item:last-child {
+            border-bottom: none;
+        }
+
+        .error-details .label {
+            color: var(--text-secondary);
+        }
+
+        .error-details .value {
+            font-weight: 500;
+            word-break: break-all;
+            max-width: 250px;
+            text-align: right;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: #1a1a2e;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-home {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-home:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const theme = localStorage.getItem('theme');
+        const designMode = localStorage.getItem('designMode');
+        if (theme === 'light') document.body.classList.add('light-theme');
+        if (designMode === 'refined') document.body.classList.add('refined-design');
+        else if (designMode === 'modern') document.body.classList.add('modern-design');
+    </script>
+    <div class="container">
+        <div class="error-icon">✕</div>
+        <h1>결제에 실패했습니다</h1>
+        <p class="message">
+            결제 처리 중 문제가 발생했습니다.<br>
+            다시 시도해주세요.
+        </p>
+
+        <div class="error-details">
+            <div class="item">
+                <span class="label">에러 코드</span>
+                <span class="value" id="errorCode">-</span>
+            </div>
+            <div class="item">
+                <span class="label">에러 메시지</span>
+                <span class="value" id="errorMessage">-</span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a href="/static/payment.html" class="btn btn-retry">🔄 다시 시도</a>
+            <a href="/" class="btn btn-home">🏠 메인으로</a>
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터에서 에러 정보 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const message = urlParams.get('message');
+
+        // 화면에 에러 정보 표시
+        if (code) {
+            document.getElementById('errorCode').textContent = code;
+        }
+        if (message) {
+            document.getElementById('errorMessage').textContent = decodeURIComponent(message);
+        }
+
+        console.log('결제 실패 정보:', { code, message });
+    </script>
+</body>
+
+</html>

@@ -15,13 +15,14 @@ def ensure_venv():
 ensure_venv()
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pathlib import Path
+import traceback
 
 from app.config.settings import settings
-from app.routers import diary_router
+from app.routers import diary_router, stats_router
 from app.services.music_service import music_service
 
 @asynccontextmanager
@@ -47,11 +48,33 @@ app = FastAPI(
 
 # Include routers
 app.include_router(diary_router.router)
+app.include_router(stats_router.router)
+
+# 글로벌 예외 처리기
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"\n{'='*20} GLOBAL ERROR {'='*20}", flush=True)
+    print(f"Path: {request.url.path}", flush=True)
+    print(f"Error: {exc}", flush=True)
+    traceback.print_exc()
+    print('='*54 + '\n', flush=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "message": str(exc)}
+    )
 
 # Static files
 static_dir = Path(__file__).parent.parent / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+
+@app.get("/api/config")
+async def get_config():
+    """프론트엔드에 필요한 설정값 반환 (보안 주의: Secret Key 노출 금지)"""
+    return {
+        "clerk_publishable_key": settings.CLERK_PUBLISHABLE_KEY
+    }
 
 
 @app.get("/")

@@ -17,23 +17,23 @@ class MusicService:
     
     # 감정별 음악 프롬프트 매핑
     MOOD_PROMPTS = {
-        "기쁨": "happy upbeat cheerful melody with bright piano and soft percussion, major key",
-        "행복": "joyful warm tune with acoustic guitar and gentle strings, positive mood",
-        "설렘": "exciting anticipatory music with synth arpeggios and light drums, building energy",
-        "평화": "peaceful calm ambient music with soft pads and gentle piano, serene atmosphere",
-        "감사": "warm grateful melody with strings and soft piano, heartfelt and sincere",
-        "사랑": "romantic loving tune with gentle strings and piano, tender and sweet",
-        "슬픔": "melancholic sad melody with slow piano and gentle strings, minor key",
-        "우울": "somber reflective music with minor key piano, introspective mood",
-        "피곤": "relaxing soothing ambient with soft synth pads, calming atmosphere",
-        "불안": "tense atmospheric music with subtle suspenseful elements, uneasy feeling",
-        "화남": "intense dramatic music with strong percussion, powerful and bold",
-        "외로움": "lonely contemplative melody with solo piano, quiet and introspective",
-        "희망": "hopeful uplifting music with crescendo strings, inspiring and positive",
-        "그리움": "nostalgic wistful tune with acoustic instruments, longing and memories",
+        "기쁨": "happy upbeat cheerful cinematic soundtrack, bright and energetic, major key",
+        "행복": "joyful warm atmospheric music, positive and heart-warming mood",
+        "설렘": "exciting anticipatory cinematic score, building energy and wonder",
+        "평화": "peaceful calm ambient soundscape, serene and tranquil atmosphere",
+        "감사": "warm grateful emotive soundtrack, heartfelt and sincere tones",
+        "사랑": "romantic tender cinematic music, sweet and soft mood",
+        "슬픔": "melancholic sad emotive score, slow and touching, minor key",
+        "우울": "somber reflective ambient music, introspective and deep mood",
+        "피곤": "relaxing soothing ambient soundscape, calming and minimal",
+        "불안": "tense atmospheric suspenseful music, uneasy and edge-of-seat feeling",
+        "화남": "intense powerful dramatic score, bold and aggressive energy",
+        "외로움": "lonely contemplative minimal soundtrack, quiet and introspective",
+        "희망": "hopeful uplifting cinematic music, inspiring and rising energy",
+        "그리움": "nostalgic wistful cinematic score, longing and memories",
     }
     
-    DEFAULT_PROMPT = "calm relaxing instrumental music with soft piano and ambient pads, peaceful mood"
+    DEFAULT_PROMPT = "calm relaxing instrumental ambient music, peaceful and steady mood"
     
     def __init__(self):
         self.music_dir = settings.DATA_DIR / "music"
@@ -47,7 +47,7 @@ class MusicService:
         self.model_name = "facebook/musicgen-medium"
         
         # BGM 길이 (초)
-        self.duration_seconds = 20
+        self.duration_seconds = 30
         
         # 샘플레이트
         self.sample_rate = 32000

@@ -1,0 +1,45 @@
+{
+  "id": "diary_20260114_181142_7b9572",
+  "created_at": "2026-01-14T18:11:42.644871",
+  "conversation": [
+    {
+      "role": "model",
+      "content": "안녕하세요! 오늘 하루는 어떠셨나요? 😊 혹시 특별한 일이나 기억에 남는 순간이 있었을까요? 편하게 이야기해주세요. 어떤 이야기든 제가 따뜻하게 들어드릴 준비가 되어있답니다.\n",
+      "timestamp": "2026-01-14T18:11:44.300454"
+    },
+    {
+      "role": "user",
+      "content": "오늘은 이사님께 인수인계를 했어",
+      "timestamp": "2026-01-14T18:11:53.836601"
+    },
+    {
+      "role": "model",
+      "content": "인수인계를 하셨군요! 이사님께 인수인계를 했다는 건, 중요한 변화가 있었다는 의미일 텐데요. 인수인계를 하면서 어떤 기분이 드셨나요? 혹시 후련함, 아쉬움, 아니면 다른 복잡한 감정들이 함께 느껴지셨을까요? 😊\n",
+      "timestamp": "2026-01-14T18:11:55.245043"
+    },
+    {
+      "role": "user",
+      "content": "후련함 매우 기분이 좋음",
+      "timestamp": "2026-01-14T18:12:14.461612"
+    },
+    {
+      "role": "model",
+      "content": "후련하고 기분이 좋으셨다니 정말 다행이네요! 😊 인수인계가 잘 마무리되어서 그런 걸까요? 아니면 새로운 시작에 대한 기대감 때문일까요? 혹시 인수인계를 하면서 기억에 남는 에피소드나 특별한 순간이 있었나요?\n",
+      "timestamp": "2026-01-14T18:12:15.624068"
+    }
+  ],
+  "summary": "오늘 이사님께 인수인계를 마쳤다. 복잡미묘할 줄 알았는데, 막상 끝나니 후련하고 기분이 매우 좋다. 새로운 시작에 대한 기대감 때문인지, 모든 것이 잘 마무리된 덕분인지 정확히는 모르겠지만, 긍정적인 감정이 가득한 하루였다.",
+  "emotion_tags": [
+    "후련함",
+    "기쁨",
+    "기대"
+  ],
+  "image_prompt": "A bright, sunny day with a clear blue sky. A person is smiling genuinely, looking towards the horizon with a sense of hope and freedom. Soft, pastel colors dominate the scene, creating a light and airy atmosphere.",
+  "image_paths": [
+    "D:\\HY\\develop_Project\\ai_diary\\app\\data\\images\\diary_20260114_181142_7b9572_181239.png"
+  ],
+  "selected_image_index": 0,
+  "bgm_prompt": "Uplifting and optimistic Lo-fi track with a gentle piano melody and soft, shuffling drum beats. The atmosphere is warm and comforting, like a sunny afternoon. A subtle synth pad adds a layer of depth and creates a sense of peaceful anticipation. Tempo is slow and relaxed, reflecting the feeling of contentment and new beginnings.",
+  "bgm_path": null,
+  "style": "watercolor"
+}

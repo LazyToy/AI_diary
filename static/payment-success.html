@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 완료 - AI 일기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        /* Refined Design */
+        body.refined-design {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+            --gradient-primary: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+        }
+
+        body.refined-design.light-theme {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #333333;
+            --gradient-primary: linear-gradient(135deg, #0a0a0a 0%, #333333 100%);
+        }
+
+        /* Modern Design */
+        body.modern-design {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #abb8c3;
+            --gradient-primary: linear-gradient(135deg, #00d084 0%, #7bdcb5 100%);
+        }
+
+        body.modern-design.light-theme {
+            --bg-primary: #f8faf9;
+            --bg-secondary: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #4a5568;
+            --gradient-primary: linear-gradient(135deg, #00a86b 0%, #00d084 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body.refined-design::before {
+            background: none;
+        }
+
+        body.modern-design::before {
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(0, 208, 132, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(123, 220, 181, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 500px;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--success);
+        }
+
+        .message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .order-info {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .order-info .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .order-info .item:last-child {
+            border-bottom: none;
+        }
+
+        .order-info .label {
+            color: var(--text-secondary);
+        }
+
+        .order-info .value {
+            font-weight: 500;
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const theme = localStorage.getItem('theme');
+        const designMode = localStorage.getItem('designMode');
+        if (theme === 'light') document.body.classList.add('light-theme');
+        if (designMode === 'refined') document.body.classList.add('refined-design');
+        else if (designMode === 'modern') document.body.classList.add('modern-design');
+    </script>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>결제가 완료되었습니다!</h1>
+        <p class="message">
+            AI 일기 프리미엄 서비스가 활성화되었습니다.<br>
+            30일 동안 프리미엄 혜택을 누려보세요!
+        </p>
+
+        <div class="order-info">
+            <div class="item">
+                <span class="label">주문번호</span>
+                <span class="value" id="orderId">-</span>
+            </div>
+            <div class="item">
+                <span class="label">상품명</span>
+                <span class="value">AI 일기 프리미엄 (30일)</span>
+            </div>
+            <div class="item">
+                <span class="label">결제금액</span>
+                <span class="value" id="amount">₩5,000</span>
+            </div>
+            <div class="item">
+                <span class="label">결제수단</span>
+                <span class="value" id="paymentMethod">-</span>
+            </div>
+        </div>
+
+        <a href="/" class="btn-home">🏠 메인으로 돌아가기</a>
+    </div>
+
+    <script>
+        // URL 파라미터에서 결제 정보 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        const paymentKey = urlParams.get('paymentKey');
+        const amount = urlParams.get('amount');
+
+        // 화면에 정보 표시
+        if (orderId) {
+            document.getElementById('orderId').textContent = orderId;
+        }
+        if (amount) {
+            document.getElementById('amount').textContent = '₩' + Number(amount).toLocaleString();
+        }
+
+        // 결제 승인 처리 (실제 환경에서는 서버에서 처리해야 함)
+        console.log('결제 성공 정보:', {
+            orderId: orderId,
+            paymentKey: paymentKey,
+            amount: amount
+        });
+    </script>
+</body>
+
+</html>

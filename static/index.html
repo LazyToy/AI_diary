@@ -10,6 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script async crossorigin="anonymous"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        data-clerk-publishable-key="pk_test_Z3JlYXQtcmFtLTc3LmNsZXJrLmFjY291bnRzLmRldiQ"></script>
 </head>
 
 <body>
@@ -22,6 +26,14 @@
                     AI 일기
                 </h1>
                 <div class="header-actions">
+                    <!-- 디자인 모드 선택기 -->
+                    <div class="design-mode-selector">
+                        <select id="designModeSelect" class="design-select" title="디자인 모드">
+                            <option value="basic">기본형</option>
+                            <option value="refined">세련된</option>
+                            <option value="modern">모던한</option>
+                        </select>
+                    </div>
                     <button class="header-btn" id="btnThemeToggle" title="테마 변경">
                         <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
@@ -34,12 +46,31 @@
                             <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                         </svg>
                     </button>
+                    <button class="header-btn" id="btnDashboard" title="대시보드">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M3 3v18h18" />
+                            <path d="M18 17V9" />
+                            <path d="M13 17V5" />
+                            <path d="M8 17v-3" />
+                        </svg>
+                    </button>
                     <button class="header-btn" id="btnHistory" title="지난 일기">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </button>
+                    <!-- Payment Button -->
+                    <button class="header-btn payment-btn" id="btnPayment" title="결제">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </button>
+                    <!-- Clerk User Button -->
+                    <div id="user-button-container"></div>
                 </div>
             </div>
         </header>
@@ -168,6 +199,18 @@
                 </div>
                 <div class="modal-body history-modal-body">
                     <div class="history-sidebar">
+                        <!-- 검색 및 필터 -->
+                        <div class="search-filter-section">
+                            <div class="search-bar">
+                                <input type="text" id="searchKeyword" placeholder="키워드 검색..." />
+                                <button id="btnSearch" class="btn-search">🔍</button>
+                            </div>
+                            <div class="tag-filter">
+                                <select id="tagFilter">
+                                    <option value="">모든 감정</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="calendar-header">
                             <button id="prevMonth">&lt;</button>
                             <span id="calendarTitle">2026년 1월</span>
@@ -184,6 +227,60 @@
                         <h3 id="selectedDateTitle">일기 목록</h3>
                         <div class="diary-list" id="diaryList">
                             <!-- Diary list items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Modal -->
+        <div class="modal" id="dashboardModal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h2>📊 감정 대시보드</h2>
+                    <button class="modal-close" id="dashboardModalClose">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- 기간 선택 탭 -->
+                    <div class="period-tabs">
+                        <button class="period-tab active" data-period="week">주간</button>
+                        <button class="period-tab" data-period="month">월간</button>
+                    </div>
+
+                    <!-- 감정 통계 섹션 -->
+                    <div class="dashboard-section">
+                        <h3>🎭 감정 분포</h3>
+                        <div class="stats-info">
+                            <span id="statsDiaryCount">-</span>개의 일기 분석
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="emotionChart"></canvas>
+                        </div>
+                        <div class="emotion-tags-list" id="dashboardTags">
+                            <!-- 태그 목록 표시 -->
+                        </div>
+                    </div>
+
+                    <!-- 베스트 이미지 섹션 -->
+                    <div class="dashboard-section">
+                        <h3>🏆 베스트 순간</h3>
+                        <div class="best-media-container">
+                            <div class="best-media-card" id="bestImageCard">
+                                <h4>📸 베스트 이미지</h4>
+                                <div class="best-image-wrapper">
+                                    <img id="bestImage" src="" alt="베스트 이미지" style="display: none;">
+                                    <div class="no-media" id="noImage">아직 이미지가 없어요</div>
+                                </div>
+                                <p class="best-summary" id="bestImageSummary"></p>
+                            </div>
+                            <div class="best-media-card" id="bestBgmCard">
+                                <h4>🎵 베스트 BGM</h4>
+                                <div class="best-bgm-wrapper">
+                                    <audio id="bestBgm" controls style="display: none;"></audio>
+                                    <div class="no-media" id="noBgm">아직 BGM이 없어요</div>
+                                </div>
+                                <p class="best-summary" id="bestBgmSummary"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -214,6 +311,34 @@
             <div class="alert-footer">
                 <button class="btn-secondary" id="confirmCancel">취소</button>
                 <button class="btn-primary" id="confirmOk">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal alert-modal" id="paymentModal">
+        <div class="modal-content payment-content">
+            <div class="payment-icon">💎</div>
+            <h3 class="payment-title">프리미엄 결제 안내</h3>
+            <div class="payment-price">₩5,000</div>
+            <div class="payment-benefits">
+                <div class="benefit-item">
+                    <span class="benefit-icon">🎨</span>
+                    <span class="benefit-text">하루 이미지 생성 <strong>30개</strong></span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">🎵</span>
+                    <span class="benefit-text">하루 BGM 생성 <strong>10개</strong></span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">📔</span>
+                    <span class="benefit-text">하루 일기 작성 <strong>10개</strong></span>
+                </div>
+            </div>
+            <p class="payment-note">결제 후 30일 동안 적용됩니다.</p>
+            <div class="payment-actions">
+                <button class="btn-secondary" id="paymentClose">닫기</button>
+                <button class="btn-primary" id="btnPayNow">결제하기</button>
             </div>
         </div>
     </div>

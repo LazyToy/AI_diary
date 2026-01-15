@@ -1,0 +1,35 @@
+{
+  "id": "diary_20260114_181832_577ab7",
+  "created_at": "2026-01-14T00:00:00",
+  "conversation": [
+    {
+      "role": "model",
+      "content": "안녕하세요! 오늘 하루는 어떠셨나요? 😊 별일 없이 평온한 하루였는지, 아니면 예상치 못한 일들로 가득 찬 하루였는지 궁금하네요. 오늘 하루 동안 있었던 일들을 편하게 이야기해주세요. 어떤 이야기든 귀 기울여 듣겠습니다.\n",
+      "timestamp": "2026-01-14T00:00:00"
+    },
+    {
+      "role": "user",
+      "content": "오늘 너무 힘들어",
+      "timestamp": "2026-01-14T18:18:38.254275"
+    },
+    {
+      "role": "model",
+      "content": "힘든 하루였군요. 😥 어떤 점이 가장 힘들었나요? 혹시 저에게 이야기해주실 수 있을까요? 힘든 감정을 털어놓는 것만으로도 조금은 마음이 가벼워질 수 있을 거예요. 괜찮으시다면, 오늘 하루 어떤 일들이 있었는지 조금 더 자세히 말씀해주시겠어요?\n",
+      "timestamp": "2026-01-14T18:18:39.627738"
+    }
+  ],
+  "summary": "오늘 하루는 유독 힘든 날이었다. 모델과의 대화에서 힘든 감정을 털어놓으며 위로를 받았다. 힘든 하루였지만, 이야기를 들어주는 존재가 있다는 사실에 조금이나마 위안을 얻었다.",
+  "emotion_tags": [
+    "힘듦",
+    "위로",
+    "답답함"
+  ],
+  "image_prompt": "A desaturated image of a person sitting alone in a dimly lit room, head in hands, with a single ray of light shining through a window, casting a shadow of sadness. Muted colors, soft focus.",
+  "image_paths": [
+    "D:\\HY\\develop_Project\\ai_diary\\app\\data\\images\\diary_20260114_181832_577ab7_181855.png"
+  ],
+  "selected_image_index": 0,
+  "bgm_prompt": "A slow, melancholic ambient piece featuring soft piano chords and sustained strings. The music should create a feeling of loneliness and introspection, gradually building to a slightly more hopeful tone, reflecting a glimmer of resilience.",
+  "bgm_path": "D:\\HY\\develop_Project\\ai_diary\\app\\data\\music\\diary_20260114_181832_577ab7_bgm_182424.wav",
+  "style": "watercolor"
+}

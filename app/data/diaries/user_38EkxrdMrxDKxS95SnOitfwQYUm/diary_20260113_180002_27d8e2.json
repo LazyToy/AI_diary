@@ -1,0 +1,36 @@
+{
+  "id": "diary_20260113_180002_27d8e2",
+  "created_at": "2026-01-13T00:00:00",
+  "conversation": [
+    {
+      "role": "model",
+      "content": "안녕하세요! 오늘 하루는 어떠셨나요? 😊 어떤 특별한 일이나 기억에 남는 순간이 있었는지 편하게 이야기해주세요. 오늘 하루를 되돌아보면서 어떤 생각이나 감정이 드셨는지도 궁금하네요.\n",
+      "timestamp": "2026-01-13T00:00:00"
+    },
+    {
+      "role": "user",
+      "content": "오늘 너무 힘들어",
+      "timestamp": "2026-01-14T18:00:07.966477"
+    },
+    {
+      "role": "model",
+      "content": "정말 힘든 하루였군요. 어떤 점이 특히 힘들게 느껴졌나요? 무슨 일이 있었는지, 어떤 감정이 들었는지 조금 더 자세히 이야기해 주시면 제가 더 잘 공감할 수 있을 것 같아요. 힘든 하루를 겪으신 당신께 위로를 전합니다. 괜찮으시다면, 무슨 일이 있었는지 조금만 더 이야기해 주시겠어요?\n",
+      "timestamp": "2026-01-14T18:00:09.360636"
+    }
+  ],
+  "summary": "오늘 하루는 유독 힘든 날이었다. 대화 상대방은 나의 힘듦에 공감하며 무슨 일이 있었는지 물어왔다. 위로를 받으니 조금은 마음이 누그러지는 듯하다. 앞으로 무슨 이야기를 해야 할지 잠시 고민해봐야겠다.",
+  "emotion_tags": [
+    "#힘듦",
+    "#위로",
+    "#공감",
+    "#고민"
+  ],
+  "image_prompt": "A dimly lit room with a single figure slumped on a chair, head in hands. Rain streaks down the window, blurring the cityscape outside. The color palette is muted blues and grays, conveying a sense of weariness and solitude.",
+  "image_paths": [
+    "D:\\HY\\develop_Project\\ai_diary\\app\\data\\images\\diary_20260113_180002_27d8e2_180034.png"
+  ],
+  "selected_image_index": 0,
+  "bgm_prompt": "A slow, melancholic piano piece with ambient textures. The tempo is very slow, creating a spacious and introspective atmosphere. Hints of cello add depth and a touch of sadness. The overall style is Lo-fi Ambient, designed to evoke feelings of loneliness and quiet reflection, gradually transitioning to a slightly warmer tone with the introduction of strings to represent hope and comfort.",
+  "bgm_path": null,
+  "style": "watercolor"
+}
